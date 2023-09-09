@@ -1,21 +1,21 @@
+//This is 1.c
+
 #include<stdio.h>
 #include<unistd.h>
-#include<sys/types.h>
-#include<sys/stat.h>
 #include<fcntl.h>
 int main(){
-	int v=symlink("temp","destSL");
-	if(v<0){
+	int v=symlink("temp","softLink");
+	if(v!=0){
 		perror("failed");
 		return 1;
 	}
-	int f =link("temp","destHL");
-	if(f<0){
+	int f =link("temp","hardLink");
+	if(f!=0){
 		perror("failed");
 		return 1;
 	}
 	int e=mknod("destFIFO",S_IFIFO,0);
-	if(e<0)
+	if(e!=0)
 		perror("failed");
 	return 0;
 }
