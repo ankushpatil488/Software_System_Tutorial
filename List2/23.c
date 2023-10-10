@@ -14,10 +14,10 @@ Date: 3rd Oct, 2023.
 #include <unistd.h>
 
 int main(){
-	long pipe_buffer_size,max_open_files;
+	long int pipe_buffer_size,max_open_files;
 	pipe_buffer_size = pathconf(".",_PC_PIPE_BUF);
 	max_open_files = sysconf(_SC_OPEN_MAX);
-	printf("Pipe_buf = %ld\t Open_Max = %ld\n",pipe_buffer_size,max_open_files);
+	printf("Pipe_buf Size is %ld\t Open_Max Size is %ld\n",pipe_buffer_size,max_open_files);
 }
 
 
