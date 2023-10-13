@@ -13,3 +13,13 @@ struct student
     char age[3];
     char emailAddress[25];
 };
+
+struct Faculty
+{
+	char loginId[11];
+    char password[10];
+	char name[30];
+    char dept[30];
+    char designation[30];
+    char emailAddress[25];
+};

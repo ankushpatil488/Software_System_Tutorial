@@ -6,10 +6,13 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define PORT 49152 
-#define BUFFER_SIZE 1024
+#define PORT 49152
 
-int main() {
+int main(int argc,char *argv[]) {
+    if(argc!=2){
+		perror("Enter the port as well after the exe name");
+		exit(1);
+	}
     int clientSocket;
     struct sockaddr_in serverAddress;
 
@@ -20,7 +23,7 @@ int main() {
     }
 
     serverAddress.sin_family = AF_INET;
-    serverAddress.sin_port = htons(PORT);
+    serverAddress.sin_port = htons(atoi(argv[1]));
     serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     if (connect(clientSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1) {

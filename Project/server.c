@@ -22,8 +22,12 @@ void signalHandler(int signo)
 }
 void handleClient(int clientSocket);
 
-int main()
+int main(int argc ,char *argv[])
 {
+	if(argc!=2){
+		perror("Enter the port as well after the exe name");
+		exit(1);
+	}
 	int serverSocket, clientSocket;
 	struct sockaddr_in serverAddress, clientAddress;
 	socklen_t clientAddrLen = sizeof(clientAddress);
@@ -36,7 +40,7 @@ int main()
 	}
 
 	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_port = htons(PORT);
+	serverAddress.sin_port = htons(atoi(argv[1]));
 	serverAddress.sin_addr.s_addr = INADDR_ANY;
 
 	if (bind(serverSocket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) == -1)
@@ -51,7 +55,7 @@ int main()
 		exit(1);
 	}
 
-	printf("Server is listening on port %d...\n", PORT);
+	printf("Server is listening on port %s...\n", argv[1]);
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 
@@ -115,8 +119,7 @@ void handleClient(int clientSocket)
 		if (buffer[0] == '1')
 		{
 			// Handle Admin role
-			// Implement the admin-related functionality here
-			// Example: send a message specific to the Admin role
+			// Implemented the admin-related functionality here
 			char response[] = "Welcome, Admin!\n";
 			send(clientSocket, response, strlen(response), 0);
 			if(!admin_functionality(clientSocket))continue;
@@ -141,6 +144,7 @@ void handleClient(int clientSocket)
 		{
 			char response[] = "You are Exiting Now !!.\n";
 			send(clientSocket, response, strlen(response), 0);
+			printf("Client gets Exited");
 			close(clientSocket);
 			return;
 		}
