@@ -36,17 +36,7 @@ int main() {
         return 0;
     }
 
-
-    if (msgrcv(msgid, &message, sizeof(message), 30, 0) == -1) {
-        perror("error msgrcv in function");
-        return 0;
-    }
-    printf("Received message without flags: %s\n", message.msg_text);
-    
-    
-    
-    int receive_flags = IPC_NOWAIT;
-    if (msgrcv(msgid, &message, sizeof(message), 40, receive_flags) == -1) {
+    if (msgrcv(msgid, &message, sizeof(message), 40, IPC_NOWAIT) == -1) {
         perror("error msgrcv in function");
         if (errno == ENOMSG) {
             printf("No message available (IPC_NOWAIT flag).\n");

@@ -23,3 +23,20 @@ struct Faculty
     char designation[30];
     char emailAddress[25];
 };
+struct Course
+{
+    char proffesor_id[10];
+    char cid[5];
+    char name[20];
+    char active[2];
+    char dept[20];
+    char total_no_of_seats[4];
+    char credits[4];
+    char available_seats[4];
+};
+
+
+
+
+
+

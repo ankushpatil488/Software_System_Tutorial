@@ -21,7 +21,7 @@ int main() {
 
     key = ftok(".", 'a');
 
-    msgid = msgget(key,IPC_CREAT|IPC_EXCL|0666);
+    msgid = msgget(key,IPC_CREAT|0666);
     if (msgid == -1) {
         perror("Error in msgget function");
         return 0;

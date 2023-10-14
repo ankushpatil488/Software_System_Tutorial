@@ -1,6 +1,4 @@
-/*#ifndef ADMIN_FUNCTIONS
-#define ADMIN_FUNCTIONS
-*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -172,7 +170,7 @@ int addStudent(int clientSocket)
 
     lock.l_type=F_UNLCK;
     fcntl(openFD,F_SETLKW,&lock);
-    // Optionally, you can send a success message to the client.
+    //sending a success message to the client.
     const char successMessage[] = "Student added successfully...\n";
     send(clientSocket, successMessage, strlen(successMessage), 0);
 

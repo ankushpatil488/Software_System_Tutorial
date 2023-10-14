@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include "admin.h"
+#include "proffesor.h"
 #define PORT 49152 
 #define BUFFER_SIZE 1024
 // Global variable to track if the server should keep running
@@ -127,16 +128,15 @@ void handleClient(int clientSocket)
 		else if (buffer[0] == '2')
 		{
 			// Handle Professor role
-			// Implement the professor-related functionality here
-			// Example: send a message specific to the Professor role
+			// Implemented the professor-related functionality here
 			char response[] = "Welcome, Professor!\n";
 			send(clientSocket, response, strlen(response), 0);
+			if(!proffesor_functionality(clientSocket))continue;
 		}
 		else if (buffer[0] == '3')
 		{
 			// Handle Student role
-			// Implement the student-related functionality here
-			// Example: send a message specific to the Student role
+			// Implemented the student-related functionality here
 			char response[] = "Welcome, Student!\n";
 			send(clientSocket, response, strlen(response), 0);
 		}
