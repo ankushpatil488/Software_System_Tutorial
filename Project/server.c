@@ -9,18 +9,11 @@
 #include <signal.h>
 #include "admin.h"
 #include "proffesor.h"
+#include "student.h"
 #define PORT 49152 
 #define BUFFER_SIZE 1024
 // Global variable to track if the server should keep running
-volatile sig_atomic_t serverRunning = 1;
 
-void signalHandler(int signo)
-{
-	if (signo == SIGINT || signo == SIGTERM)
-	{
-		serverRunning = 0;
-	}
-}
 void handleClient(int clientSocket);
 
 int main(int argc ,char *argv[])
@@ -57,10 +50,9 @@ int main(int argc ,char *argv[])
 	}
 
 	printf("Server is listening on port %s...\n", argv[1]);
-	signal(SIGINT, signalHandler);
-	signal(SIGTERM, signalHandler);
+	
 
-	while (serverRunning)
+	while (1)
 	{
 		int clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddress, &clientAddrLen);
 		if (clientSocket == -1)
@@ -121,7 +113,7 @@ void handleClient(int clientSocket)
 		{
 			// Handle Admin role
 			// Implemented the admin-related functionality here
-			char response[] = "Welcome, Admin!\n";
+			char response[] = "<-----------Welcome, Admin!---------->\n";
 			send(clientSocket, response, strlen(response), 0);
 			if(!admin_functionality(clientSocket))continue;
 		}
@@ -129,7 +121,7 @@ void handleClient(int clientSocket)
 		{
 			// Handle Professor role
 			// Implemented the professor-related functionality here
-			char response[] = "Welcome, Professor!\n";
+			char response[] = "<-----------Welcome, Professor!----------->\n";
 			send(clientSocket, response, strlen(response), 0);
 			if(!proffesor_functionality(clientSocket))continue;
 		}
@@ -137,14 +129,15 @@ void handleClient(int clientSocket)
 		{
 			// Handle Student role
 			// Implemented the student-related functionality here
-			char response[] = "Welcome, Student!\n";
+			char response[] = "<-----------Welcome, Student!----------->\n";
 			send(clientSocket, response, strlen(response), 0);
+			if(!student_functionality(clientSocket))continue;
 		}
 		else
 		{
 			char response[] = "You are Exiting Now !!.\n";
 			send(clientSocket, response, strlen(response), 0);
-			printf("Client gets Exited");
+			printf("Client gets Exited\n");
 			close(clientSocket);
 			return;
 		}

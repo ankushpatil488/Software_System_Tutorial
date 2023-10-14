@@ -341,7 +341,7 @@ int updateCourseDetails(int clientSocket,char *auth)
     return 0; // Close the file after use
 }
 
-int changePasswod(int clientSocket)
+int changeProfessorPassword(int clientSocket)
 {
     struct Faculty my_faculty, temp;
     int openFD = open("faculty_database.txt", O_RDWR, 0644); // Open in read-only mode
@@ -413,17 +413,14 @@ int changePasswod(int clientSocket)
         close(openFD);
         return 0;
     }
-    close(openFD);
-    return 0; // Close the file after use
+    return 0; 
 }
-
-
 
 
 int proffesor_functionality(int clientSocket)
 {
     char *auth=authenticateProfessor(clientSocket);
-    if (strcmp(auth,"0"))
+    if (strcmp(auth,"0")!=0)
     {
         char readbuff[1000], writebuff[1000]; // A buffer used for reading & writing to the client
         int a = 1;
@@ -467,7 +464,7 @@ int proffesor_functionality(int clientSocket)
                     continue;
                 break;
             case 5:
-                if (!changePasswod(clientSocket))
+                if (!changeProfessorPassword(clientSocket))
                     continue;
                 break;
             default:
