@@ -97,8 +97,8 @@ int viewOfferingCourses(int clientSocket,char* auth) {
     if (found)
     {
         // Construct the details message
-        sprintf(buffer, "...................Course Details..................\nName: %s\nDepartment: %s\nCourse ID: %s\nTotal No of Seats: %s\nAvailable No of Seats %s\nCredits: %s\nActive: %s\n.............................................\n",
-                temp.name, temp.dept,temp.cid, temp.total_no_of_seats, temp.available_seats,temp.credits,temp.active);
+        sprintf(buffer, "...................Course Details..................\nName of Subject: %s\nName of Proffesor: %s\nDepartment: %s\nCourse ID: %s\nTotal No of Seats: %s\nAvailable No of Seats %s\nCredits: %s\nActive: %s\n.............................................\n",
+                temp.name, temp.proffesor_name,temp.dept,temp.cid, temp.total_no_of_seats, temp.available_seats,temp.credits,temp.active);
         // Send the details to the client
         send(clientSocket, buffer, strlen(buffer), 0);
         close(openFD);
@@ -110,19 +110,37 @@ int viewOfferingCourses(int clientSocket,char* auth) {
         close(openFD);
         return 0;
     }
-    close(openFD);
     return 0;
 }
 
 int addNewCourse(int clientSocket,char* auth) {
     struct Course course;
     int openFD = open("course_database.txt", O_RDWR | O_CREAT | O_APPEND, 0644); // Open the file in append mode
+    int openFD1 = open("faculty_database.txt", O_RDONLY | O_CREAT | O_APPEND, 0644); // Open the file in append mode
+
     if (openFD == -1)
     {
         perror("Error while openenig the file course_database.txt");
         close(clientSocket);
         return 0;
     }
+    if (openFD1 == -1)
+    {
+        perror("Error while openenig the file faculty_database.txt");
+        close(clientSocket);
+        return 0;
+    }
+    struct Faculty temp1;
+    while (read(openFD1,&temp1,sizeof(temp1)) > 0)
+    {
+        if(customStrCmp(temp1.loginId,auth)==0)
+        {
+            strcpy(course.proffesor_name,temp1.name);
+            break;
+        }
+    }
+    close(openFD1);
+    
     strcpy(course.proffesor_id,auth);
     if (sendPromptAndReceiveResponse(clientSocket, "Enter Subject Name: ", course.name, sizeof(course.name)) == -1)
     {
@@ -199,7 +217,6 @@ int removeCoursefromCatalog(int clientSocket,char* auth) {
     
     // Reset the file pointer to the beginning of the file
     lseek(openFD, 0, SEEK_SET);
-    printf("Auth %s ",auth);
     strcpy(my_course.proffesor_id,auth);
     // Loop to search for the student in the file
     while (read(openFD, &temp, sizeof(temp)) > 0)
@@ -207,9 +224,7 @@ int removeCoursefromCatalog(int clientSocket,char* auth) {
         if((customStrCmp(my_course.cid, temp.cid) == 0) && (customStrCmp(my_course.proffesor_id, temp.proffesor_id) == 0)&& customStrCmp(temp.active,"1")==0)
         { // Compare the student IDs
             found = true;
-            printf("Active %s",temp.active);
             strcpy(temp.active,"0");
-            printf("Active %s",temp.active);
             break;
         }
     }
@@ -223,7 +238,7 @@ int removeCoursefromCatalog(int clientSocket,char* auth) {
     }
     if (found)
     {
-        send(clientSocket, "Removed the course from catalog", strlen("Removed the course from catalog"), 0);
+        send(clientSocket, "Removed the course from catalog\n", strlen("Removed the course from catalog\n"), 0);
         close(openFD);
         return 1;
     }
@@ -244,6 +259,7 @@ int updateCourseDetails(int clientSocket,char *auth)
     if (openFD == -1)
     {
         perror("Error opening file");
+        close(openFD);
         return 0;
     }
     bool found = false; // Initialize found to false
@@ -286,16 +302,16 @@ int updateCourseDetails(int clientSocket,char *auth)
     {
 
         // Construct the details message
-        sprintf(buffer, "...................Course Details..................\nName: %s\nDepartment: %s\nCourse ID: %s\nTotal No of Seats: %s\nCredits: %s\n.............................................\n",
-                temp.name, temp.dept,temp.cid, temp.total_no_of_seats,temp.credits);
+        sprintf(buffer, "...................Course Details..................\nName of Subject: %s\nName of Proffessor: %s\nDepartment: %s\nCourse ID: %s\nTotal No of Seats: %s\nCredits: %s\n.............................................\n",
+                temp.name,temp.proffesor_name, temp.dept,temp.cid, temp.total_no_of_seats,temp.credits);
 
         // Send the details to the client
         send(clientSocket, buffer, strlen(buffer), 0);
         
         struct Course up_course;
         strcpy(up_course.cid, temp.cid);
-
-        send(clientSocket, "Enter Name to update: ", strlen("Enter Name to update: "), 0);
+        strcpy(up_course.proffesor_name,temp.proffesor_name);
+        send(clientSocket, "Enter Name of Subject to update: ", strlen("Enter Name of Subject to update: "), 0);
         readResult = read(clientSocket, up_course.name, sizeof(up_course.name) - 1);
         up_course.name[readResult]='\0';
 
@@ -314,8 +330,8 @@ int updateCourseDetails(int clientSocket,char *auth)
         lseek(openFD,-sizeof(struct Course),SEEK_CUR); //// Move the file pointer back to the beginning of the current record
         write(openFD,&up_course,sizeof(up_course));// Overwrite the entire record with the updated data
 
-        sprintf(buffer, "...................Course Details..................\nName: %s\nDepartment: %s\nCourse ID: %s\nTotal No of Seats: %s\nCredits: %s\n.............................................\n",
-                up_course.name, up_course.dept,up_course.cid, up_course.total_no_of_seats,up_course.credits);
+        sprintf(buffer, "...................Course Details..................\nName of Subject: %s\nName of Proffesor: %s\nDepartment: %s\nCourse ID: %s\nTotal No of Seats: %s\nCredits: %s\n.............................................\n",
+                up_course.name,up_course.proffesor_name, up_course.dept,up_course.cid, up_course.total_no_of_seats,up_course.credits);
         
         // Send the details to the client
         send(clientSocket, buffer, strlen(buffer), 0);

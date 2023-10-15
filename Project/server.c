@@ -109,6 +109,38 @@ void handleClient(int clientSocket)
 		}
 		buffer[bytesRead] = '\0';
 		// Process the client's role choice
+		int choice=atoi(buffer);
+		switch (choice)
+		{
+		case 1:
+			// Handle Admin role
+			// Implemented the admin-related functionality here
+			char response[] = "<-----------Welcome, Admin!---------->\n";
+			send(clientSocket, response, strlen(response), 0);
+			if(!admin_functionality(clientSocket))break;
+				break;
+		case 2:
+			// Handle Professor role
+			// Implemented the professor-related functionality here
+			char response1[] = "<-----------Welcome, Professor!----------->\n";
+			send(clientSocket, response1, strlen(response1), 0);
+			if(!proffesor_functionality(clientSocket))break;
+				break;
+		case 3:
+			// Handle Student role
+			// Implemented the student-related functionality here
+			char response2[] = "<-----------Welcome, Student!----------->\n";
+			send(clientSocket, response2, strlen(response2), 0);
+			if(!student_functionality(clientSocket))break;
+				break;
+		default:
+			char response3[] = "You are Exiting Now !!.\n";
+			send(clientSocket, response3, strlen(response3), 0);
+			printf("Client gets Exited\n");
+			close(clientSocket);
+			return;
+		}
+		/*
 		if (buffer[0] == '1')
 		{
 			// Handle Admin role
@@ -140,7 +172,7 @@ void handleClient(int clientSocket)
 			printf("Client gets Exited\n");
 			close(clientSocket);
 			return;
-		}
+		*/
 	}
 	// Close the client socket
 	close(clientSocket);
