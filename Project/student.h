@@ -153,11 +153,11 @@ int enrollNewCourse(int clientSocket, char *auth)
     {
         // check first already enrolled in this course or not
         strcpy(enr.cid, my_course.cid);
-        strcpy(enr.logingId, auth);
+        strcpy(enr.loginId, auth);
         lseek(openFD1, 0, SEEK_SET);
         while (read(openFD1, &tenr, sizeof(tenr)) > 0)
         {
-            if (customStrCmp(enr.cid, tenr.cid) == 0 && customStrCmp(enr.logingId, tenr.logingId) == 0)
+            if (customStrCmp(enr.cid, tenr.cid) == 0 && customStrCmp(enr.loginId, tenr.loginId) == 0)
             {
                 found2 = true;
                 break;
@@ -214,8 +214,7 @@ int dropCourse(int clientSocket, char *auth)
     struct Course my_course, temp;
     struct Enroll enr, tenr, tenr1;
     int openFD = open("course_database.txt", O_RDWR);
-    int openFD1 = open("enrolled_database.txt", O_RDWR | O_CREAT | O_APPEND, 0644);
-
+    int openFD1 = open("enrolled_database.txt", O_RDWR | O_CREAT, 0644);
     if (openFD == -1)
     {
         perror("Error in opening the file");
@@ -253,7 +252,7 @@ int dropCourse(int clientSocket, char *auth)
         lseek(openFD1, 0, SEEK_SET);
         while (read(openFD1, &tenr1, sizeof(tenr1)) > 0)
         {
-            if (customStrCmp(my_course.cid, tenr1.cid) == 0 && customStrCmp(tenr1.logingId, "-1") == 0)
+            if (customStrCmp(my_course.cid,"-1") == 0 && customStrCmp(tenr1.loginId, auth) == 0)
             {
                 flag2 = true;
             }
@@ -264,11 +263,11 @@ int dropCourse(int clientSocket, char *auth)
             bool found1 = false;
             bool found2 = false;
             strcpy(enr.cid, my_course.cid);
-            strcpy(enr.logingId, auth);
+            strcpy(enr.loginId, auth);
             lseek(openFD1, 0, SEEK_SET);
             while (read(openFD1, &tenr, sizeof(tenr)) > 0)
             {
-                if (customStrCmp(enr.cid, tenr.cid) == 0 && customStrCmp(enr.logingId, tenr.logingId) == 0)
+                if (customStrCmp(enr.cid, tenr.cid) == 0 && customStrCmp(enr.loginId, tenr.loginId) == 0)
                 {
                     found2 = true;
                     break;
@@ -277,7 +276,7 @@ int dropCourse(int clientSocket, char *auth)
             if (found2)
             {
                 strcpy(tenr.cid, "-1");
-                lseek(openFD1, -sizeof(tenr), SEEK_CUR);
+                lseek(openFD1, -sizeof(struct Enroll), SEEK_CUR);
                 write(openFD1, &tenr, sizeof(tenr));
 
                 // increment the count of available seats in coure_database.txt
@@ -296,7 +295,7 @@ int dropCourse(int clientSocket, char *auth)
                     avai_seats += 1;
                     char buff[4];
                     sprintf(buff, "%d", avai_seats);
-                    send(clientSocket, buff, sizeof(buff) - 1, 0);
+                    //send(clientSocket, buff, sizeof(buff) - 1, 0);
                     strcpy(temp.available_seats, buff);
                     lseek(openFD, -sizeof(struct Course), SEEK_CUR);
                     write(openFD, &temp, sizeof(temp));
@@ -308,6 +307,7 @@ int dropCourse(int clientSocket, char *auth)
                 else
                 {
                     send(clientSocket, "You haven't enrolled in this course\n", strlen("You haven't enrolled in this course\n"), 0);
+                    close(openFD);
                     close(openFD1);
                     return 0;
                 }
@@ -315,14 +315,14 @@ int dropCourse(int clientSocket, char *auth)
             else
             {
                 send(clientSocket, "You haven't enrolled in this course\n", strlen("You haven't enrolled in this course\n"), 0);
-                close(openFD1);
                 close(openFD);
+                close(openFD1);
                 return 0;
             }
         }
         else
         {
-            send(clientSocket, "You haven't enrolled in this course\n", strlen("You haven't enrolled in this course\n"), 0);
+            send(clientSocket, "Enroll First!You haven't enrolled in this course\n", strlen("Enroll First!You haven't enrolled in this course\n"), 0);
             close(openFD1);
             return 0;
         }

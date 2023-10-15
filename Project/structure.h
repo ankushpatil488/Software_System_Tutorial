@@ -37,7 +37,7 @@ struct Course
 };
 struct Enroll{
     char cid[5];
-    char logingId[11];
+    char loginId[11];
 };
 
 
