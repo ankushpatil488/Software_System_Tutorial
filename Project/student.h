@@ -103,10 +103,6 @@ int viewAllCourses(int clientSocket)
     close(openFD);
 }
 
-int alreadyEnrolled(int clientSocket, char *cid)
-{
-}
-
 int enrollNewCourse(int clientSocket, char *auth)
 {
     int val = viewAllCourses(clientSocket);
@@ -151,7 +147,7 @@ int enrollNewCourse(int clientSocket, char *auth)
     }
     if (found1)
     {
-        // check first already enrolled in this course or not
+       
         strcpy(enr.cid, my_course.cid);
         strcpy(enr.loginId, auth);
         lseek(openFD1, 0, SEEK_SET);
@@ -163,6 +159,7 @@ int enrollNewCourse(int clientSocket, char *auth)
                 break;
             }
         }
+        // check  already enrolled in this course or not
         if (found2)
         {
             send(clientSocket, "You Already Enrolled in the course\n", strlen("You Already Enrolled in the course\n"), 0);
@@ -187,6 +184,7 @@ int enrollNewCourse(int clientSocket, char *auth)
                 send(clientSocket, "No more Enrollment in this course(Seats are Full)\n", strlen("No more Enrollment in this course(Seats are Full)\n"), 0);
                 close(openFD);
                 close(openFD1);
+                return 0;
             }
             avai_seats -= 1;
             char buff[4];
@@ -338,6 +336,56 @@ int dropCourse(int clientSocket, char *auth)
 
 int viewEnrolledCourseDetails(int clientSocket, char *auth)
 {
+    int openFD = open("enrolled_database.txt",O_RDONLY);
+    if(openFD==-1){
+        perror("Error in opening the file");
+        close(openFD);
+        return 0;
+    }
+    bool found=false;
+    struct Enroll enr,tenr;
+    strcpy(enr.loginId,auth);
+    lseek(openFD,0,SEEK_SET);
+    while(read(openFD,&tenr,sizeof(tenr)) > 0){
+        if(customStrCmp(enr.loginId,tenr.loginId) == 0){
+            if(customStrCmp(tenr.cid,"-1") == 0){
+                continue;
+            }
+            else{
+                strcpy(enr.cid,tenr.cid);
+                int openFD1=open("course_database.txt",O_RDONLY);
+                if(openFD1 == -1){
+                    perror("Error while opening the file");
+                    close(openFD);
+                    close(openFD1);
+                    continue;
+                }
+                struct Course my_course,temp;
+                strcpy(my_course.cid,enr.cid);
+                lseek(openFD1,0,SEEK_SET);
+                char buff[1024];
+                while(read(openFD1,&temp,sizeof(temp)) > 0){
+                    if(customStrCmp(my_course.cid,temp.cid)==0 && customStrCmp(temp.active,"1")==0){
+                        if(customStrCmp(temp.available_seats ,"0") != 0){
+                            sprintf(buff,"\nProffessor Name: %s\nCourse Id: %s\nSubject Name: %s\nDepartment: %s\nAvailable Seats: %s\n",temp.proffesor_name,temp.cid,temp.name,temp.dept,temp.available_seats);
+                            send(clientSocket,buff,strlen(buff),0);
+                            found=true;
+                            break;
+                        }
+                    }
+                    
+                }
+            }
+        }
+
+    }
+    if(!found){
+        send(clientSocket,"No Enrollment you have done yet\n",strlen("No Enrollment you have done yet\n"),0);
+        close(openFD);
+        return 0;
+    }
+
+    
 }
 
 int changeStudentPassword(int clientSocket)
