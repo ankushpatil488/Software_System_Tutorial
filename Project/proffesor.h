@@ -16,7 +16,7 @@ char* authenticateProfessor(int clientSocket) {
 
     if (openFD == -1) {
         perror("Error opening file");
-        return NULL; // Return NULL to indicate an error
+        return "0"; // Return NULL to indicate an error
     }
 
     bool found = false; // Initialize found to false
@@ -26,7 +26,7 @@ char* authenticateProfessor(int clientSocket) {
 
     if (readResult <= 0) {
         send(clientSocket, "Error receiving faculty username from server", strlen("Error receiving faculty username from server"), 0);
-        return NULL; // Return NULL to indicate an error
+        return "0"; // Return NULL to indicate an error
     }
     my_faculty.loginId[readResult] = '\0';
 
@@ -35,7 +35,7 @@ char* authenticateProfessor(int clientSocket) {
 
     if (readResult <= 0) {
         send(clientSocket, "Error receiving faculty password from server", strlen("Error receiving faculty password from server"), 0);
-        return NULL; // Return NULL to indicate an error
+        return "0"; // Return NULL to indicate an error
     }
     my_faculty.password[readResult] = '\0';
 
@@ -54,10 +54,9 @@ char* authenticateProfessor(int clientSocket) {
             }
         }
     }
-
     // Authentication failed
     close(openFD);
-    return NULL; // Return NULL to indicate an error
+    return "0"; // Return NULL to indicate an error
 }
 
 int viewOfferingCourses(int clientSocket,char* auth) {
@@ -456,7 +455,7 @@ int proffesor_functionality(int clientSocket)
             if (readBytes == -1)
             {
                 perror("Error in the choice you provided");
-                return false;
+                return 0;
             }
             int choice = atoi(readbuff);
             // send(clientSocket,readbuff,sizeof(readbuff),0);

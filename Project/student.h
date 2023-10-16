@@ -18,7 +18,7 @@ char *authenticateStudent(int clientSocket)
     if (openFD == -1)
     {
         perror("Error opening file");
-        return NULL; // Return NULL to indicate an error
+        return "0"; // Return NULL to indicate an error
     }
 
     bool found = false; // Initialize found to false
@@ -29,7 +29,7 @@ char *authenticateStudent(int clientSocket)
     if (readResult <= 0)
     {
         send(clientSocket, "Error receiving Student username from server", strlen("Error receiving Student username from server"), 0);
-        return NULL; // Return NULL to indicate an error
+        return "0"; // Return NULL to indicate an error
     }
     my_student.loginId[readResult] = '\0';
 
@@ -39,7 +39,7 @@ char *authenticateStudent(int clientSocket)
     if (readResult <= 0)
     {
         send(clientSocket, "Error receiving Student password from server", strlen("Error receiving Student password from server"), 0);
-        return NULL; // Return NULL to indicate an error
+        return "0"; // Return NULL to indicate an error
     }
     my_student.password[readResult] = '\0';
 
@@ -63,7 +63,7 @@ char *authenticateStudent(int clientSocket)
     }
     // Authentication failed
     close(openFD);
-    return NULL; // Return NULL to indicate an error
+    return "0"; // Return NULL to indicate an error
 }
 
 int viewAllCourses(int clientSocket)
@@ -170,20 +170,21 @@ int enrollNewCourse(int clientSocket, char *auth)
         else
         {
             // Make the entry of stud_id and course_id to enrolled_database.txt
-            lseek(openFD1, 0, SEEK_END);
-            ssize_t bytes_written = write(openFD1, &enr, sizeof(enr));
-            if (bytes_written == -1)
-            {
-                perror("Error while writing the details");
-                close(openFD);
-                return 0;
-            }
+            
             int avai_seats = atoi(temp.available_seats);
             if (avai_seats == 0)
             {
                 send(clientSocket, "No more Enrollment in this course(Seats are Full)\n", strlen("No more Enrollment in this course(Seats are Full)\n"), 0);
                 close(openFD);
                 close(openFD1);
+                return 0;
+            }
+            lseek(openFD1, 0, SEEK_END);
+            ssize_t bytes_written = write(openFD1, &enr, sizeof(enr));
+            if (bytes_written == -1)
+            {
+                perror("Error while writing the details");
+                close(openFD);
                 return 0;
             }
             avai_seats -= 1;
@@ -366,12 +367,12 @@ int viewEnrolledCourseDetails(int clientSocket, char *auth)
                 char buff[1024];
                 while(read(openFD1,&temp,sizeof(temp)) > 0){
                     if(customStrCmp(my_course.cid,temp.cid)==0 && customStrCmp(temp.active,"1")==0){
-                        if(customStrCmp(temp.available_seats ,"0") != 0){
+                        //if(customStrCmp(temp.available_seats ,"0") != 0){
                             sprintf(buff,"\nProffessor Name: %s\nCourse Id: %s\nSubject Name: %s\nDepartment: %s\nAvailable Seats: %s\n",temp.proffesor_name,temp.cid,temp.name,temp.dept,temp.available_seats);
                             send(clientSocket,buff,strlen(buff),0);
                             found=true;
                             break;
-                        }
+                        //}
                     }
                     
                 }
