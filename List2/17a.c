@@ -20,7 +20,7 @@ int main() {
         perror("pipe");
         return 0;
     }
-    while(1);
+  
     int pid = fork();
 
     if (pid == -1) {
